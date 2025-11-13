@@ -38,18 +38,16 @@ const router = createRouter({
   routes,
 })
 
-// Navigation guard
+
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
 
   if (to.name === 'auth' && token) {
-    // If user is already logged in, redirect to dashboard
     next({ name: 'dashboard'})
   } else if (to.name === 'dashboard' && !token) {
-    // If user is not logged in, redirect to auth
     next({ name: 'auth' })
   } else {
-    next() // allow navigation
+    next() 
   }
 })
 

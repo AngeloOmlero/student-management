@@ -18,13 +18,11 @@ export const useAuthStore = defineStore('auth', () => {
     return response
   }
 
-  const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
-    const response = await authService.register(payload)
-    token.value = response.token
-    localStorage.setItem('token', response.token)
-    await fetchCurrentUser()
-    return response
-  }
+  const register = async (payload: RegisterPayload) => {
+      const response = await authService.register(payload);
+      return response;
+    };
+
 
   const logout = () => {
     token.value = null

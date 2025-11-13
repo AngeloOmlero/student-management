@@ -5,22 +5,21 @@
     <main class="content-container">
       <h1>Enrolled Courses</h1>
 
-      <!-- Loader -->
       <div v-if="loading" class="loader">Loading courses...</div>
 
-      <!-- Empty message -->
       <div v-else-if="coursesWithStudents.length === 0" class="loader">
         No courses available.
       </div>
 
-      <!-- Courses Grid -->
-      <div v-else class="courses-grid">
-        <CourseCard 
-          v-for="course in coursesWithStudents" 
-          :key="course.id" 
-          :course="course" 
+      <div class="courses-grid">
+        <CourseCard
+          v-for="(course, idx) in coursesWithStudents"
+          :key="course.id"
+          :course="course"
+          :index="idx"
         />
       </div>
+
     </main>
   </div>
 </template>
@@ -49,8 +48,6 @@ export default defineComponent({
 
     const coursesWithStudents = computed(() => {
       const coursesObj = studentStore.courses ?? {}
-      const students = Array.isArray(studentStore.students) ? studentStore.students : []
-
       return Object.entries(coursesObj).map(([name, courseStudents], index) => ({
         id: index + 1,
         name,

@@ -11,10 +11,7 @@ export const useStudentStore = defineStore('student', {
   }),
 
   actions: {
-    /**
-     * Fetch students with optional filters and pagination.
-     * Filters can include: name, email, course, age.
-     */
+   
     async fetchStudents(
       page = 0,
       size = 10,
@@ -25,7 +22,7 @@ export const useStudentStore = defineStore('student', {
         this.students = response.data ?? [];
         return response;
       } catch (error) {
-        console.error('❌ Error fetching students:', error);
+        console.error('Error fetching students:', error);
         return {
           data: [],
           meta: {
@@ -43,7 +40,7 @@ export const useStudentStore = defineStore('student', {
         const newStudent = await studentService.create(student);
         this.students.push(newStudent);
       } catch (error) {
-        console.error('❌ Error creating student:', error);
+        console.error('Error creating student:', error);
       }
     },
 
@@ -52,7 +49,7 @@ export const useStudentStore = defineStore('student', {
         const student = await studentService.getById(id);
         this.selectedStudent = student;
       } catch (error) {
-        console.error('❌ Error fetching student by ID:', error);
+        console.error('Error fetching student by ID:', error);
       }
     },
 
@@ -62,7 +59,7 @@ export const useStudentStore = defineStore('student', {
         const index = this.students.findIndex((s) => s.id === id);
         if (index !== -1) this.students[index] = updatedStudent;
       } catch (error) {
-        console.error('❌ Error updating student:', error);
+        console.error('Error updating student:', error);
       }
     },
 
@@ -71,7 +68,7 @@ export const useStudentStore = defineStore('student', {
         await studentService.delete(id);
         this.students = this.students.filter((s) => s.id !== id);
       } catch (error) {
-        console.error('❌ Error deleting student:', error);
+        console.error('Error deleting student:', error);
       }
     },
 
@@ -80,7 +77,7 @@ export const useStudentStore = defineStore('student', {
         const courses = await studentService.getCourses();
         this.courses = courses;
       } catch (error) {
-        console.error('❌ Error fetching courses:', error);
+        console.error('Error fetching courses:', error);
       }
     },
 

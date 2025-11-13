@@ -3,10 +3,7 @@ import type { Student, StudentPayload, Course } from '@/types/student';
 import type { PageResponse } from '@/types/paginated';
 
 export const studentService = {
-  /**
-   * Fetch all students with pagination and filters.
-   * Matches backend endpoint: GET /api/students
-   */
+ 
   async getAll(
     page = 0,
     size = 10,

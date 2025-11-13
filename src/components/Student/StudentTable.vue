@@ -118,14 +118,14 @@ export default defineComponent({
           emit('filter', {})
           return
         }
-        const num = Number(term)
+        
         const filterObj: { name?: string; email?: string; age?: number; course?: string } = {
           name: term,
           email: term,
           course: term,
+          age: term ? Number(term) : undefined,
         }
-        if (!isNaN(num)) filterObj.age = num
-
+      
         emit('filter', filterObj)
       }
 

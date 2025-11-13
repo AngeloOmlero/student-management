@@ -16,7 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', response.token)
     await fetchCurrentUser()
     return response
-  }
+  };
 
   const register = async (payload: RegisterPayload) => {
       const response = await authService.register(payload);
@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
-  }
+  };
 
  const fetchCurrentUser = async () => {
   if (!token.value) {

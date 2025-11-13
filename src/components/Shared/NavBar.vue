@@ -5,64 +5,95 @@
       <h1>Student Management</h1>
     </div>
 
+    <!-- Navigation Links -->
     <nav class="nav-links">
       <router-link to="/dashboard" class="nav-item" exact>Dashboard</router-link>
       <router-link to="/students" class="nav-item">Students</router-link>
       <router-link to="/course" class="nav-item">Courses</router-link>
     </nav>
 
-    <div class="nav-actions">
-      <DarkModeToggle />
-      <button class="logout-btn" @click="logout">Logout</button>
-    </div>
+      <div class="profile-container" @click="toggleDropdown">
+        <div class="profile-info">
+          <span class="username">{{ username }}</span>
+          <div class="avatar">{{ initials }}</div>
+        </div>
 
-    <!-- Mobile Menu Toggle -->
+        <div class="dropdown" v-if="isDropdownOpen">
+          <router-link to="/profile" class="dropdown-item profile">Profile</router-link>
+          <hr />
+          <button class="dropdown-item logout" @click="logout">Logout</button>
+        </div>
+      </div>
+    
+
+
     <button class="menu-toggle" @click="toggleMenu">
       <span :class="{ open: isMenuOpen }"></span>
     </button>
 
-    <!-- Mobile Nav -->
+   
     <div class="mobile-nav" v-if="isMenuOpen">
       <router-link to="/dashboard" @click="closeMenu">Dashboard</router-link>
       <router-link to="/students" @click="closeMenu">Students</router-link>
       <router-link to="/course" @click="closeMenu">Courses</router-link>
       <hr />
       <DarkModeToggle />
-      <button class="logout-btn" @click="logout">Logout</button>
+      <button class="dropdown-item logout" @click="logout">Logout</button>
     </div>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { defineComponent, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/auth.store'
 
 export default defineComponent({
   name: 'NavBar',
   setup() {
-    const router = useRouter();
-    const isMenuOpen = ref(false);
+    const router = useRouter()
+    const authStore = useAuthStore()
+
+    const isMenuOpen = ref(false)
+    const isDropdownOpen = ref(false)
+
+    const username = computed(() => authStore.user?.username || 'Guest')
+    const initials = computed(() =>
+      username.value ? username.value.charAt(0).toUpperCase() : '?'
+    )
 
     const logout = () => {
-      localStorage.removeItem('token');
-      router.push('/auth');
-    };
+      authStore.logout()
+      router.push('/auth')
+    }
 
     const toggleMenu = () => {
-      isMenuOpen.value = !isMenuOpen.value;
-    };
+      isMenuOpen.value = !isMenuOpen.value
+    }
 
     const closeMenu = () => {
-      isMenuOpen.value = false;
-    };
+      isMenuOpen.value = false
+    }
 
-    return { logout, isMenuOpen, toggleMenu, closeMenu };
-  }
-});
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
+
+    return {
+      username,
+      initials,
+      logout,
+      isMenuOpen,
+      toggleMenu,
+      closeMenu,
+      isDropdownOpen,
+      toggleDropdown,
+    }
+  },
+})
 </script>
 
 <style scoped>
-/* ================= Navbar ================= */
 .navbar {
   position: fixed;
   top: 20px;
@@ -79,7 +110,6 @@ export default defineComponent({
   border-radius: 50px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Logo */
@@ -97,6 +127,7 @@ export default defineComponent({
   object-fit: cover;
   transition: transform 0.3s ease;
 }
+
 .logo-container img:hover {
   transform: scale(1.1);
 }
@@ -120,9 +151,11 @@ export default defineComponent({
   font-weight: 500;
   transition: color 0.3s;
 }
+
 .nav-item:hover {
   color: #007bff;
 }
+
 .nav-item::after {
   content: '';
   position: absolute;
@@ -133,6 +166,7 @@ export default defineComponent({
   bottom: -3px;
   transition: width 0.3s ease;
 }
+
 .nav-item:hover::after,
 .router-link-active::after {
   width: 100%;
@@ -143,22 +177,81 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 15px;
+  position: relative;
 }
 
-.logout-btn {
-  background: #007bff;
-  color: white;
-  font-weight: 600;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 10px;
+/* Profile Container */
+.profile-container {
+  position: relative;
   cursor: pointer;
-  transition: all 0.3s;
 }
-.logout-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: transform 0.3s;
+}
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.username {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  width: 160px;
+  animation: fadeInDown 0.2s ease;
+}
+
+.dropdown-item {
+  display: block;
+  text-align: left;
+  padding: 10px 20px;
+  width: 100%;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.dropdown-item.profile:hover {
+  color: #007bff;
+}
+
+.dropdown-item.logout:hover {
+  color: #c0392b;
+}
+
+
+
 
 /* Mobile Menu */
 .menu-toggle {

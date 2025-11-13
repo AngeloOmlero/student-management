@@ -80,11 +80,13 @@ export default defineComponent({
     const saveStudent = async () => {
       if (props.student) {
         await studentStore.updateStudent(props.student.id, form);
+        
       } else {
         await studentStore.createStudent(form);
       }
       emit('close');
     };
+   
 
     const close = () => emit('close');
 

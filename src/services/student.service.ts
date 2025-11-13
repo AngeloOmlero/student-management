@@ -3,19 +3,27 @@ import type { Student, StudentPayload, Course } from '@/types/student';
 import type { PageResponse } from '@/types/paginated';
 
 export const studentService = {
-  
+  /**
+   * Fetch all students with pagination and filters.
+   * Matches backend endpoint: GET /api/students
+   */
   async getAll(
     page = 0,
     size = 10,
     filters?: { name?: string; email?: string; age?: number; course?: string }
   ): Promise<PageResponse<Student>> {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      size: size.toString(),
-      ...Object.fromEntries(
-        Object.entries(filters ?? {}).filter(([_, v]) => v !== undefined && v !== null)
-      ),
-    });
+    const params = new URLSearchParams();
+
+    params.append('page', page.toString());
+    params.append('size', size.toString());
+
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+    }
 
     const response = await api.get<PageResponse<Student>>(`/students?${params.toString()}`);
     return response.data;

@@ -1,79 +1,139 @@
 <template>
   <NavBar />
+
   <main class="container">
+    <!-- Header with logo + add button -->
     <div class="actions-header">
       <div class="header-logo-container">
-        <img src="@/assets/images/graduating-student.png" alt="logo">
+        <img src="@/assets/images/graduating-student.png" alt="logo" />
         <h2>Students</h2>
       </div>
       <button class="add-btn" @click="showModal = true">+ Add Student</button>
     </div>
 
-    <div class="filter-container">
-      <input type="text" placeholder="Search..." v-model="filterQuery" />
-    </div>
-
+    <!-- Student Table -->
     <div class="student-table-container">
       <StudentTable
         :students="paginatedStudents"
-        :filter-query="filterQuery"
+        :currentPage="currentPage"
+        :pageSize="pageSize"
+        v-model:search="localSearch"
+        @filter="applyFilter"
         @edit="editStudent"
         @delete="deleteStudent"
+        @update:currentPage="currentPage = $event"
+        @page-changed="fetchStudents"
       />
     </div>
 
-    
+    <!-- Student Modal -->
     <StudentModal
       :visible="showModal"
       :student="selectedStudent"
       @close="closeModal"
     />
-
   </main>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import NavBar from '../components/Shared/NavBar.vue'
 import StudentTable from '../components/Student/StudentTable.vue'
 import StudentModal from '../components/Student/StudentModal.vue'
 import { useStudentStore } from '../stores/student.store'
 
 export default defineComponent({
+  name: 'StudentsView',
   components: { NavBar, StudentTable, StudentModal },
+
   setup() {
     const studentStore = useStudentStore()
     const showModal = ref(false)
     const selectedStudent = ref<any>(null)
-    const filterQuery = ref('')
     const currentPage = ref(0)
     const pageSize = 10
+    const localSearch = ref('')       // <-- reactive search input
 
-    const paginatedStudents = computed(() => ({
-      data: studentStore.students,
+    const courses = ref<string[]>([]) // for dynamic course filtering
+
+    const filters = ref<{ name?: string; email?: string; age?: number; course?: string }>({})
+
+    const paginatedStudents = ref({
+      data: [] as any[],
       meta: {
-        page: currentPage.value,
+        page: 0,
         size: pageSize,
-        totalElements: studentStore.students.length,
-        totalPage: Math.ceil(studentStore.students.length / pageSize),
+        totalElements: 0,
+        totalPage: 0,
       },
-    }))
+    })
+
+    const fetchStudents = async (page = currentPage.value) => {
+      const response = await studentStore.fetchStudents(page, pageSize, filters.value)
+      paginatedStudents.value = response
+    }
+
+    const applyFilter = (term: string | undefined) => {
+      const trimmed = term?.trim()
+      if (!trimmed) {
+        filters.value = {}
+      } else if (!isNaN(Number(trimmed))) {
+        // Numeric → age filter
+        filters.value = { age: Number(trimmed) }
+      } else if (courses.value.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+        // Matches a course → course filter
+        filters.value = { course: trimmed }
+      } else {
+        // Email regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (emailRegex.test(trimmed)) {
+          filters.value = { email: trimmed }
+        } else {
+          // Default → name filter
+          filters.value = { name: trimmed }
+        }
+      }
+      currentPage.value = 0
+      fetchStudents(0)
+    }
+
+    // Debounce to avoid too many backend calls
+    function debounce<T extends (...args: any[]) => void>(fn: T, delay = 400) {
+      let t: number | undefined
+      return ((...args: any[]) => {
+        if (t) clearTimeout(t)
+        t = window.setTimeout(() => fn(...args), delay) as unknown as number
+      }) as T
+    }
+
+    const debouncedFilter = debounce(applyFilter, 400)
+
+    watch(localSearch, (newVal) => {
+      debouncedFilter(newVal)
+    })
 
     const editStudent = (student: any) => {
       selectedStudent.value = student
       showModal.value = true
     }
 
-    const deleteStudent = (id: number) => studentStore.deleteStudent(id)
-    const closeModal = () => {
-      selectedStudent.value = null
-      showModal.value = false
+    const deleteStudent = async (id: number) => {
+      await studentStore.deleteStudent(id)
+      fetchStudents()
     }
 
-    onMounted(() => {
-      studentStore.fetchStudents()
-      studentStore.fetchCourses()
+    const closeModal = async () => {
+      selectedStudent.value = null
+      showModal.value = false
+      fetchStudents()
+    }
+
+    onMounted(async () => {
+      await studentStore.fetchCourses()
+      fetchStudents()
     })
+
+    watch(currentPage, (newPage) => fetchStudents(newPage))
 
     return {
       showModal,
@@ -81,18 +141,19 @@ export default defineComponent({
       editStudent,
       deleteStudent,
       closeModal,
-      filterQuery,
       paginatedStudents,
       currentPage,
       pageSize,
+      applyFilter,
+      localSearch,
+      fetchStudents,
     }
   },
 })
 </script>
 <style scoped>
-
 .container {
-  padding: 120px 1rem 2rem 1rem; 
+  padding: 120px 1rem 2rem 1rem;
   max-width: 1100px;
   margin: 0 auto;
   animation: fadeIn 0.4s ease forwards;
@@ -101,21 +162,19 @@ export default defineComponent({
 /* Header with logo and add button */
 .actions-header {
   display: flex;
-  flex-wrap: wrap; /* allow wrapping on small screens */
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
   gap: 1rem;
 }
 
-/* Logo container */
 .header-logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* Logo image */
 .header-logo-container img {
   width: 50px;
   height: 50px;
@@ -130,7 +189,6 @@ export default defineComponent({
   transform: scale(1.1);
 }
 
-/* Header text */
 .header-logo-container h2 {
   font-size: 22px;
   color: #007bff;
@@ -138,7 +196,6 @@ export default defineComponent({
   margin: 0;
 }
 
-/* Add button */
 .add-btn {
   background: #007bff;
   color: white;
@@ -155,36 +212,11 @@ export default defineComponent({
   box-shadow: 0 6px 16px rgba(0, 123, 255, 0.25);
 }
 
-/* Filter input */
-.filter-container {
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.filter-container input {
-  width: 35%;
-  max-width: 300px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  outline: none;
-  font-size: 1rem;
-  transition: 0.2s;
-}
-
-.filter-container input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
-}
-
-/* Table container scroll on small screens */
 .student-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Fade in animation */
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -196,21 +228,10 @@ export default defineComponent({
   }
 }
 
-/* Mobile responsive tweaks */
 @media screen and (max-width: 768px) {
   .actions-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .filter-container {
-    justify-content: flex-start;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
-  .filter-container input {
-    width: 100%;
   }
 
   .header-logo-container h2 {
@@ -237,5 +258,4 @@ export default defineComponent({
     padding: 8px 16px;
   }
 }
-
 </style>

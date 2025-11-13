@@ -2,28 +2,40 @@
   <div class="activity-container">
     <h3>Recent Activity</h3>
     <ul>
-      <li v-for="(activity, index) in activities" :key="index">
+      <li v-for="(activity, index) in recentActivities" :key="index">
         <i class="fas fa-circle"></i>
         <span>{{ activity }}</span>
       </li>
+      <li v-if="recentActivities.length === 0">No recent activity</li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, computed, watch, onMounted } from 'vue';
+import { useStudentStore } from '../../stores/student.store';
 
 export default defineComponent({
   name: 'RecentActivity',
   setup() {
-    const activities = ref([
-      'John Doe enrolled in Math 101',
-      'New course added: Introduction to Kotlin',
-      'Maria updated her student profile',
-      '3 pending requests approved'
-    ]);
+    const studentStore = useStudentStore();
 
-    return { activities };
+    const recentActivities = computed(() => {
+      const activities: string[] = [];
+
+      studentStore.students.slice(-5).forEach(student => {
+        if (student.createdAt) activities.push(`${student.name} was added to ${student.courseName || 'N/A'}`);
+        if (student.updatedAt && student.updatedAt !== student.createdAt) activities.push(`${student.name}'s profile was updated`);
+      });
+
+      return activities.reverse(); 
+    });
+
+    onMounted(() => {
+      if (!studentStore.students.length) studentStore.fetchStudents();
+    });
+
+    return { recentActivities };
   }
 });
 </script>

@@ -1,37 +1,71 @@
 <template>
   <div class="chart-container">
-    <canvas id="studentsChart"></canvas>
+    <canvas ref="chartCanvas"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, watch } from 'vue';
 import Chart from 'chart.js/auto';
+import { useStudentStore } from '../../stores/student.store';
 
 export default defineComponent({
   name: 'StudentsPerCourseChart',
   setup() {
-    onMounted(() => {
-      const ctx = document.getElementById('studentsChart') as HTMLCanvasElement;
+    const studentStore = useStudentStore();
+    const chartCanvas = ref<HTMLCanvasElement | null>(null);
+    let chartInstance: Chart | null = null;
 
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Math', 'Science', 'English', 'History', 'Programming'],
-          datasets: [
-            {
-              label: 'Students',
-              data: [30, 25, 20, 15, 35],
-              backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545']
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true } }
-        }
+    const getChartData = () => {
+      const grouped: Record<string, number> = {};
+      studentStore.students.forEach(student => {
+        const courseName = student.courseName || 'N/A';
+        grouped[courseName] = (grouped[courseName] || 0) + 1;
       });
+
+      return {
+        labels: Object.keys(grouped),
+        data: Object.values(grouped)
+      };
+    };
+
+    const renderChart = () => {
+        if (!chartCanvas.value) return;
+        const { labels, data } = getChartData();
+
+        if (chartInstance) chartInstance.destroy();
+
+        const colors = ['#007bff', '#28a745']; // blue and green
+
+        chartInstance = new Chart(chartCanvas.value, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Students',
+                data,
+                backgroundColor: labels.map((_, i) => colors[i % colors.length]) // alternate
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      };
+
+
+    onMounted(async () => {
+      await studentStore.fetchStudents(0, 1000); 
+      renderChart();
     });
+
+  
+    watch(() => studentStore.students, () => renderChart(), { deep: true });
+
+    return { chartCanvas };
   }
 });
 </script>

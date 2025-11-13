@@ -3,46 +3,77 @@
     <NavBar />
 
     <main class="dashboard-content">
-      <h2 class="dashboard-title">Dashboard Overview</h2>
+      <h2 class="dashboard-title">
+        Welcome {{ currentUser?.username || 'User' }} to Student Management Dashboard
+      </h2>
 
       <!-- Metric Cards -->
       <section class="metric-section">
-        <MetricCard title="Total Students" :value="totalStudents" icon="users" color="#007bff" />
-        <MetricCard title="Total Courses" :value="totalCourses" icon="book-open" color="#28a745" />
-        <MetricCard title="Active Enrollments" :value="activeEnrollments" icon="clipboard-list" color="#ffc107" />
-        <MetricCard title="Pending Requests" :value="pendingRequests" icon="bell" color="#dc3545" />
+        <MetricCard 
+          v-for="metric in metrics" 
+          :key="metric.title"
+          :title="metric.title" 
+          :value="metric.value" 
+          :icon="metric.icon" 
+          :color="metric.color" 
+        />
       </section>
 
       <!-- Chart -->
       <section class="chart-section">
-        <StudentsPerCourseChart />
+        <StudentsPerCourseChart :students="studentStore.students" />
       </section>
 
       <!-- Recent Activity -->
       <section class="activity-section">
-        <RecentActivity />
+        <RecentActivity :students="studentStore.students" />
+      </section>
+
+      <!-- Course Summary -->
+      <section class="course-section">
+        <CourseSummary ref="courseSummaryRef" :students="studentStore.students" />
       </section>
     </main>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import NavBar from "../components/Shared/NavBar.vue";
 import MetricCard from '../components/Dashboard/MetricCard.vue';
 import StudentsPerCourseChart from '../components/Dashboard/StudentPerCourseChart.vue';
 import RecentActivity from '../components/Dashboard/RecentActivity.vue';
+import CourseSummary from '../components/Dashboard/CourseSummary.vue';
+import { useStudentStore } from '../stores/student.store';
+import { useAuthStore } from '../stores/auth.store';
 
 export default defineComponent({
   name: 'DashboardView',
-  components: { NavBar, MetricCard, StudentsPerCourseChart, RecentActivity },
+  components: { NavBar, MetricCard, StudentsPerCourseChart, RecentActivity, CourseSummary },
   setup() {
-    const totalStudents = ref(125);
-    const totalCourses = ref(8);
-    const activeEnrollments = ref(98);
-    const pendingRequests = ref(5);
+    const studentStore = useStudentStore();
+    const authStore = useAuthStore();
+    const courseSummaryRef = ref<any>(null);
+    const currentUser = computed(() => authStore.user);
 
-    return { totalStudents, totalCourses, activeEnrollments, pendingRequests };
+    const totalStudents = computed(() => studentStore.students.length);
+    const totalCourses = computed(() => {
+      return courseSummaryRef.value
+        ? Object.keys(courseSummaryRef.value.groupedStudents).length
+        : 0;
+    });
+
+    const metrics = computed(() => [
+      { title: 'Total Students', value: totalStudents.value, icon: 'users', color: '#007bff' },
+      { title: 'Total Courses', value: totalCourses.value, icon: 'book-open', color: '#28a745' },
+    ]);
+
+   onMounted(async () => {
+    await studentStore.fetchStudents(0, 1000) 
+    await authStore.fetchCurrentUser()
+})
+
+    return { metrics, courseSummaryRef, currentUser, studentStore };
   }
 });
 </script>
@@ -71,7 +102,8 @@ export default defineComponent({
 }
 
 .chart-section,
-.activity-section {
+.activity-section,
+.course-section {
   background: white;
   border-radius: 15px;
   padding: 2rem;
@@ -87,13 +119,7 @@ body.dark-mode .activity-section {
 }
 
 @keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 </style>

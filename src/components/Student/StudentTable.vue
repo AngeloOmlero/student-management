@@ -1,6 +1,6 @@
 <template>
   <div class="student-table-root">
-    <!-- Filter (presentational) -->
+
     <div class="filter-container">
       <input
         type="text"
@@ -11,7 +11,7 @@
       />
     </div>
 
-    <!-- Table -->
+    
     <div class="table-container">
       <table>
         <thead>
@@ -42,13 +42,13 @@
         </tbody>
       </table>
 
-      <!-- Pagination (presentational) -->
+      
       <div class="pagination" v-if="students.meta?.totalElements > pageSize">
         <button :disabled="currentPage <= 0" @click="changePage(currentPage - 1)">
           Prev
         </button>
 
-        <!-- show some pages around the current one -->
+       
         <button
           v-for="page in visiblePages"
           :key="page"
@@ -79,12 +79,12 @@ type PageMeta = {
 export default defineComponent({
   name: 'StudentTable',
   props: {
-    // PageResponse-like object expected from parent
+    
     students: {
       type: Object as () => { data: any[]; meta: PageMeta },
       required: true,
     },
-    // controlled pagination props (parent owns the state)
+    
     currentPage: {
       type: Number,
       default: 0,
@@ -93,7 +93,7 @@ export default defineComponent({
       type: Number,
       default: 10,
     },
-    // how many page buttons to show around current (for small UIs)
+    
     pageWindow: {
       type: Number,
       default: 3,
@@ -101,10 +101,10 @@ export default defineComponent({
   },
   emits: ['edit', 'delete', 'filter', 'update:currentPage', 'page-changed'],
   setup(props, { emit }) {
-    // local search input to debounce and emit 'filter' to parent
+    
     const localSearch = ref('');
 
-    // debounce util
+    
     function debounce<T extends (...args: any[]) => void>(fn: T, delay = 400) {
       let t: number | undefined;
       return ((...args: any[]) => {
@@ -118,8 +118,6 @@ export default defineComponent({
           emit('filter', {})
           return
         }
-
-        // Use plain strings, not objects
         const num = Number(term)
         const filterObj: { name?: string; email?: string; age?: number; course?: string } = {
           name: term,
@@ -140,10 +138,10 @@ export default defineComponent({
 
     const emitFilterNow = () => {
       // immediate emission (on Enter)
-      emit('filter', localSearch.value.trim() || undefined);
+      emit('filter', localSearch.value|| undefined);
     };
 
-    // Pagination helpers
+    
     const lastPage = computed(() => Math.max(0, (props.students.meta?.totalPage ?? 1) - 1));
 
     const visiblePages = computed(() => {

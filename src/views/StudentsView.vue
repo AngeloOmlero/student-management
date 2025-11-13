@@ -74,28 +74,27 @@ export default defineComponent({
     }
 
     const applyFilter = (term: string | undefined) => {
-      const trimmed = term?.trim()
-      if (!trimmed) {
-        filters.value = {}
-      } else if (!isNaN(Number(trimmed))) {
-        // Numeric → age filter
-        filters.value = { age: Number(trimmed) }
-      } else if (courses.value.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
-        // Matches a course → course filter
-        filters.value = { course: trimmed }
-      } else {
-        // Email regex
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (emailRegex.test(trimmed)) {
-          filters.value = { email: trimmed }
+        const trimmed = term?.trim()
+        if (!trimmed) {
+          filters.value = {}
+        } else if (!isNaN(Number(trimmed))) {
+          filters.value = { age: Number(trimmed) }
+        } else if (courses.value.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+          filters.value = { course: trimmed }
         } else {
-          // Default → name filter
-          filters.value = { name: trimmed }
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (emailRegex.test(trimmed)) {
+            filters.value = { email: trimmed }
+          } else {
+            filters.value = { name: trimmed }
+          }
         }
+
+        currentPage.value = 0
+        fetchStudents(0)
       }
-      currentPage.value = 0
-      fetchStudents(0)
-    }
+
+
 
     // Debounce to avoid too many backend calls
     function debounce<T extends (...args: any[]) => void>(fn: T, delay = 400) {
@@ -106,7 +105,7 @@ export default defineComponent({
       }) as T
     }
 
-    const debouncedFilter = debounce(applyFilter, 400)
+    const debouncedFilter = debounce(applyFilter, 300)
 
     watch(localSearch, (newVal) => {
       debouncedFilter(newVal)

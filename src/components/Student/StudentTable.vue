@@ -1,6 +1,5 @@
 <template>
   <div class="student-table-root">
-
     <div class="filter-container">
       <input
         type="text"
@@ -11,7 +10,6 @@
       />
     </div>
 
-    
     <div class="table-container">
       <table>
         <thead>
@@ -20,6 +18,8 @@
             <th>Email</th>
             <th>Age</th>
             <th>Course</th>
+            <th>Created At</th>
+            <th>Updated At</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -30,25 +30,23 @@
             <td>{{ student.email }}</td>
             <td>{{ student.age }}</td>
             <td>{{ student.courseName ?? 'N/A' }}</td>
+            <td>{{ formatDate(student.createdAt) }}</td>
+            <td>{{ formatDate(student.updatedAt) }}</td>
             <td class="actions">
               <button class="edit" @click="$emit('edit', student)">Edit</button>
-              <button class="delete" @click="$emit('delete', student.id)">Delete</button>
+              <button class="delete" @click="promptDelete(student)">Delete</button>
             </td>
           </tr>
 
-          <tr v-if="!(students.data?.length)">
-            <td :colspan="5" class="no-data">No students found.</td>
+          <tr v-if="!students.data?.length">
+            <td :colspan="7" class="no-data">No students found.</td>
           </tr>
         </tbody>
       </table>
 
-      
       <div class="pagination" v-if="students.meta?.totalElements > pageSize">
-        <button :disabled="currentPage <= 0" @click="changePage(currentPage - 1)">
-          Prev
-        </button>
+        <button :disabled="currentPage <= 0" @click="changePage(currentPage - 1)">Prev</button>
 
-       
         <button
           v-for="page in visiblePages"
           :key="page"
@@ -63,122 +61,221 @@
         </button>
       </div>
     </div>
+
+    <!-- ===== DELETE CONFIRMATION MODAL ===== -->
+    <div v-if="studentToDelete" class="delete-modal" @click.self="cancelDelete">
+      <div class="delete-modal-content">
+        <h3>Confirm Delete</h3>
+        <p>
+          Are you sure you want to delete <strong>{{ studentToDelete.name }}</strong
+          >?
+        </p>
+        <div class="confirm-actions">
+          <button class="confirm" @click="confirmDelete">Yes, Delete</button>
+          <button class="cancel" @click="cancelDelete">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, watch, computed } from 'vue'
 
 type PageMeta = {
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPage: number;
-};
+  page: number
+  size: number
+  totalElements: number
+  totalPage: number
+}
 
 export default defineComponent({
   name: 'StudentTable',
+
   props: {
-    
     students: {
       type: Object as () => { data: any[]; meta: PageMeta },
       required: true,
     },
-    
-    currentPage: {
-      type: Number,
-      default: 0,
-    },
-    pageSize: {
-      type: Number,
-      default: 10,
-    },
-    
-    pageWindow: {
-      type: Number,
-      default: 3,
-    },
-  },
-  emits: ['edit', 'delete', 'filter', 'update:currentPage', 'page-changed'],
-  setup(props, { emit }) {
-    
-    const localSearch = ref('');
 
-    
+    currentPage: { type: Number, default: 0 },
+    pageSize: { type: Number, default: 10 },
+    pageWindow: { type: Number, default: 3 },
+  },
+
+  emits: ['edit', 'delete', 'filter', 'update:currentPage', 'page-changed'],
+
+  setup(props, { emit }) {
+    const localSearch = ref('')
+    const studentToDelete = ref<any | null>(null)
+
+    function promptDelete(student: any) {
+      studentToDelete.value = student
+    }
+
+    function confirmDelete() {
+      if (studentToDelete.value) {
+        emit('delete', studentToDelete.value.id)
+      }
+      studentToDelete.value = null
+    }
+
+    function cancelDelete() {
+      studentToDelete.value = null
+    }
+
     function debounce<T extends (...args: any[]) => void>(fn: T, delay = 400) {
-      let t: number | undefined;
+      let t: number | undefined
       return ((...args: any[]) => {
-        if (t) clearTimeout(t);
-        t = window.setTimeout(() => fn(...args), delay) as unknown as number;
-      }) as T;
+        if (t) clearTimeout(t)
+        t = window.setTimeout(() => fn(...args), delay) as unknown as number
+      }) as T
+    }
+
+    function formatDate(dateString?: string) {
+      if (!dateString) return 'N/A'
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
     }
 
     const emitFilter = (term: string) => {
-        if (!term) {
-          emit('filter', {})
-          return
-        }
-        
-        const filterObj: { name?: string; email?: string; age?: number; course?: string } = {
-          name: term,
-          email: term,
-          course: term,
-          age: term ? Number(term) : undefined,
-        }
-      
-        emit('filter', filterObj)
+      if (!term) {
+        emit('filter', {})
+        return
       }
 
+      const filterObj: any = {
+        name: term,
+        email: term,
+        course: term,
+        age: term ? Number(term) : undefined,
+      }
 
-    const debouncedEmitFilter = debounce(emitFilter, 400);
+      emit('filter', filterObj)
+    }
+
+    const debouncedEmitFilter = debounce(emitFilter, 400)
 
     watch(localSearch, (newVal) => {
-      debouncedEmitFilter(newVal.trim());
-    });
+      debouncedEmitFilter(newVal.trim())
+    })
 
     const emitFilterNow = () => {
-      // immediate emission (on Enter)
-      emit('filter', localSearch.value|| undefined);
-    };
+      emit('filter', localSearch.value || undefined)
+    }
 
-    
-    const lastPage = computed(() => Math.max(0, (props.students.meta?.totalPage ?? 1) - 1));
+    const lastPage = computed(() => Math.max(0, (props.students.meta?.totalPage ?? 1) - 1))
 
     const visiblePages = computed(() => {
-      const total = props.students.meta?.totalPage ?? 1;
-      const current = props.currentPage ?? 0;
-      const window = props.pageWindow;
-      const pages: number[] = [];
+      const total = props.students.meta?.totalPage ?? 1
+      const current = props.currentPage
+      const window = props.pageWindow
 
-      const start = Math.max(0, current - window);
-      const end = Math.min(total - 1, current + window);
+      const pages: number[] = []
+      const start = Math.max(0, current - window)
+      const end = Math.min(total - 1, current + window)
 
-      for (let p = start; p <= end; p++) pages.push(p);
-      return pages;
-    });
+      for (let p = start; p <= end; p++) pages.push(p)
+      return pages
+    })
 
     function changePage(page: number) {
-      // clamp
-      const clamped = Math.max(0, Math.min(lastPage.value, page));
-      // tell parent to update its page state (v-model style)
-      emit('update:currentPage', clamped);
-      // also an explicit page-changed hook
-      emit('page-changed', clamped);
+      const clamped = Math.max(0, Math.min(lastPage.value, page))
+      emit('update:currentPage', clamped)
+      emit('page-changed', clamped)
     }
 
     return {
       localSearch,
+      studentToDelete,
+      promptDelete,
+      confirmDelete,
+      cancelDelete,
       debouncedEmitFilter,
       emitFilterNow,
       changePage,
       visiblePages,
       lastPage,
-    };
+      formatDate,
+    }
   },
-});
+})
 </script>
 
 <style scoped>
+/* Delete Confirmation Modal */
+.delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  align-items: center;
+  z-index: 200;
+}
+
+.delete-modal-content {
+  background: white;
+  padding: 24px 32px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.delete-modal-content h3 {
+  margin: 0 0 12px;
+  color: #dc3545;
+}
+
+.delete-modal-content p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+button.confirm {
+  background: #dc3545;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+button.cancel {
+  background: #6c757d;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* Keep styling simple and presentational */
 .student-table-root {
   width: 100%;
@@ -218,7 +315,8 @@ thead {
   font-weight: 600;
 }
 
-th, td {
+th,
+td {
   padding: 14px 16px;
 }
 
@@ -230,7 +328,10 @@ tbody tr:hover {
   background: #e6f0ff;
 }
 
-td.actions { display: flex; gap: 0.5rem; }
+td.actions {
+  display: flex;
+  gap: 0.5rem;
+}
 
 button.edit {
   color: #007bff;

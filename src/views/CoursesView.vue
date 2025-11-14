@@ -7,9 +7,7 @@
 
       <div v-if="loading" class="loader">Loading courses...</div>
 
-      <div v-else-if="coursesWithStudents.length === 0" class="loader">
-        No courses available.
-      </div>
+      <div v-else-if="coursesWithStudents.length === 0" class="loader">No courses available.</div>
 
       <div class="courses-grid">
         <CourseCard
@@ -19,7 +17,6 @@
           :index="idx"
         />
       </div>
-
     </main>
   </div>
 </template>
@@ -51,23 +48,21 @@ export default defineComponent({
       return Object.entries(coursesObj).map(([name, courseStudents], index) => ({
         id: index + 1,
         name,
-        students: Array.isArray(courseStudents) ? courseStudents : []
+        students: Array.isArray(courseStudents) ? courseStudents : [],
       }))
     })
 
     return { coursesWithStudents, loading }
-  }
+  },
 })
 </script>
 
 <style scoped>
-
-
 .content-container {
   padding: 120px 2rem 2rem 2rem;
   margin: 0 auto;
   max-width: 1100px;
-  display: block; 
+  display: block;
 }
 
 h1 {
@@ -77,7 +72,6 @@ h1 {
   font-weight: 600;
 }
 
-
 .loader {
   text-align: center;
   padding: 2rem;
@@ -85,14 +79,12 @@ h1 {
   color: #007bff;
 }
 
-
 .courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
-
 
 .courses-grid > * {
   animation: fadeIn 0.4s ease forwards;

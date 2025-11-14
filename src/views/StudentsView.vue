@@ -27,11 +27,7 @@
     </div>
 
     <!-- Student Modal -->
-    <StudentModal
-      :visible="showModal"
-      :student="selectedStudent"
-      @close="closeModal"
-    />
+    <StudentModal :visible="showModal" :student="selectedStudent" @close="closeModal" />
   </main>
 </template>
 
@@ -52,7 +48,7 @@ export default defineComponent({
     const selectedStudent = ref<any>(null)
     const currentPage = ref(0)
     const pageSize = 10
-    const localSearch = ref('')       // <-- reactive search input
+    const localSearch = ref('') // <-- reactive search input
 
     const courses = ref<string[]>([]) // for dynamic course filtering
 
@@ -74,27 +70,25 @@ export default defineComponent({
     }
 
     const applyFilter = (term: string | undefined) => {
-        const trimmed = term?.trim()
-        if (!trimmed) {
-          filters.value = {}
-        } else if (!isNaN(Number(trimmed))) {
-          filters.value = { age: Number(trimmed) }
-        } else if (courses.value.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
-          filters.value = { course: trimmed }
+      const trimmed = term?.trim()
+      if (!trimmed) {
+        filters.value = {}
+      } else if (!isNaN(Number(trimmed))) {
+        filters.value = { age: Number(trimmed) }
+      } else if (courses.value.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+        filters.value = { course: trimmed }
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (emailRegex.test(trimmed)) {
+          filters.value = { email: trimmed }
         } else {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          if (emailRegex.test(trimmed)) {
-            filters.value = { email: trimmed }
-          } else {
-            filters.value = { name: trimmed }
-          }
+          filters.value = { name: trimmed }
         }
-
-        currentPage.value = 0
-        fetchStudents(0)
       }
 
-
+      currentPage.value = 0
+      fetchStudents(0)
+    }
 
     // Debounce to avoid too many backend calls
     function debounce<T extends (...args: any[]) => void>(fn: T, delay = 400) {

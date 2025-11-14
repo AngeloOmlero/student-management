@@ -3,9 +3,7 @@
     <NavBar />
 
     <main class="dashboard-content">
-      <h2 class="dashboard-title">
-        Welcome {{ currentUser?.fullName || 'Unknow User' }} to Student Management Dashboard
-      </h2>
+      <h2 class="dashboard-title">Student Management Dashboard</h2>
 
       <!-- Metric Cards -->
       <section class="metric-section">

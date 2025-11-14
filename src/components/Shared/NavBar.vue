@@ -12,26 +12,23 @@
       <router-link to="/course" class="nav-item">Courses</router-link>
     </nav>
 
-      <div class="profile-container" @click="toggleDropdown">
-        <div class="profile-info">
-          <span class="username">{{ username }}</span>
-          <div class="avatar">{{ initials }}</div>
-        </div>
-
-        <div class="dropdown" v-if="isDropdownOpen">
-          <router-link to="/profile" class="dropdown-item profile">Profile</router-link>
-          <hr />
-          <button class="dropdown-item logout" @click="logout">Logout</button>
-        </div>
+    <div class="profile-container" @click="toggleDropdown">
+      <div class="profile-info">
+        <span class="username">{{ fullName }}</span>
+        <div class="avatar">{{ initials }}</div>
       </div>
-    
 
+      <div class="dropdown" v-if="isDropdownOpen">
+        <router-link to="/profile" class="dropdown-item profile">Profile</router-link>
+        <hr />
+        <button class="dropdown-item logout" @click="logout">Logout</button>
+      </div>
+    </div>
 
     <button class="menu-toggle" @click="toggleMenu">
       <span :class="{ open: isMenuOpen }"></span>
     </button>
 
-   
     <div class="mobile-nav" v-if="isMenuOpen">
       <router-link to="/dashboard" @click="closeMenu">Dashboard</router-link>
       <router-link to="/students" @click="closeMenu">Students</router-link>
@@ -57,10 +54,8 @@ export default defineComponent({
     const isMenuOpen = ref(false)
     const isDropdownOpen = ref(false)
 
-    const username = computed(() => authStore.user?.username || 'Guest')
-    const initials = computed(() =>
-      username.value ? username.value.charAt(0).toUpperCase() : '?'
-    )
+    const fullName = computed(() => authStore.user?.fullName || 'Guest')
+    const initials = computed(() => (fullName.value ? fullName.value.charAt(0).toUpperCase() : '?'))
 
     const logout = () => {
       authStore.logout()
@@ -80,7 +75,7 @@ export default defineComponent({
     }
 
     return {
-      username,
+      fullName,
       initials,
       logout,
       isMenuOpen,
@@ -249,9 +244,6 @@ export default defineComponent({
 .dropdown-item.logout:hover {
   color: #c0392b;
 }
-
-
-
 
 /* Mobile Menu */
 .menu-toggle {

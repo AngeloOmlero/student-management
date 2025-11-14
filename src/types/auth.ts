@@ -1,5 +1,6 @@
 export interface User {
   id: number
+  fullName: string
   username: string
   role: 'ADMIN' | 'USER'
 }
@@ -10,6 +11,7 @@ export interface LoginPayload {
 }
 
 export interface RegisterPayload extends LoginPayload {
+  fullName: string
   role?: 'ADMIN' | 'USER'
 }
 

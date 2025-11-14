@@ -1,13 +1,12 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      
       <h2 class="form-title">Login</h2>
 
       <form @submit.prevent="handleLogin">
         <div class="input-group">
           <label for="username">Username</label>
-          <input type="text" id="username" v-model="username" required />
+          <input type="text" id="username" v-model="username" required autofocus />
         </div>
 
         <div class="input-group">
@@ -19,8 +18,8 @@
       </form>
 
       <div class="footer">
-        Don't have an account? 
-        <a href="#" @click.prevent="$emit('switch-form','register')">Register</a>
+        Don't have an account?
+        <a href="#" @click.prevent="$emit('switch-form', 'register')">Register</a>
       </div>
     </div>
   </div>
@@ -44,7 +43,7 @@ export default {
     const handleLogin = async () => {
       const payload = {
         username: username.value,
-        password: password.value
+        password: password.value,
       }
 
       try {
@@ -61,17 +60,16 @@ export default {
     }
 
     return { username, password, handleLogin, isLoading, emit }
-  }
+  },
 }
 </script>
-
 
 <style scoped>
 .login-container {
   background: white;
   padding: 3rem 2.5rem;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   width: 380px;
   max-width: 80%;
   text-align: center;
@@ -79,8 +77,14 @@ export default {
 }
 
 @keyframes fadeIn {
-  from {opacity: 0; transform: translateY(-10%);}
-  to {opacity: 1; transform: translateY(0);}
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .form-title {
@@ -92,7 +96,7 @@ export default {
 
 .input-group {
   margin-bottom: 1.5rem;
-  width: 100%; 
+  width: 100%;
 }
 
 .input-group label {
@@ -132,13 +136,13 @@ export default {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
   transition: 0.3s;
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,123,255,0.25);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.25);
 }
 
 .footer {
@@ -163,5 +167,4 @@ export default {
   transition: all 0.3s ease;
   overflow: hidden;
 }
-
 </style>

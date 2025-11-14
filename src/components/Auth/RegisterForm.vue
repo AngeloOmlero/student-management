@@ -2,8 +2,13 @@
   <div class="login-container">
     <div class="login-card">
       <h2 class="form-title">Register</h2>
-      
+
       <form @submit.prevent="handleRegister">
+        <div class="input-group">
+          <label for="fullname">Fullname</label>
+          <input type="text" id="username" v-model="fullName" required />
+        </div>
+
         <div class="input-group">
           <label for="username">Username</label>
           <input type="text" id="username" v-model="username" required />
@@ -27,7 +32,7 @@
     </div>
 
     <div class="footer">
-      Already have an account? 
+      Already have an account?
       <a href="#" @click.prevent="$emit('switch-form', 'login')">Login</a>
     </div>
   </div>
@@ -43,12 +48,18 @@ export default {
   setup(_, { emit }) {
     const authStore = useAuthStore()
 
+    const fullName = ref('')
     const username = ref('')
     const password = ref('')
     const role = ref<'USER' | 'ADMIN'>('USER')
 
     const handleRegister = async () => {
-      const payload = { username: username.value, password: password.value, role: role.value }
+      const payload = {
+        fullName: fullName.value,
+        username: username.value,
+        password: password.value,
+        role: role.value,
+      }
       try {
         await authStore.register(payload)
         alert('Registration successful! Please log in.')
@@ -59,7 +70,7 @@ export default {
       }
     }
 
-    return { username, password, role, handleRegister }
+    return { fullName, username, password, role, handleRegister }
   },
 }
 </script>

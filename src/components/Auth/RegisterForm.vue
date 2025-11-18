@@ -170,4 +170,11 @@ export default {
 .footer a:hover {
   text-decoration: underline;
 }
+@media screen and (max-width: 480px) {
+  .login-container {
+    width: 75%;
+    padding: 30px;
+    border-radius: 12px;
+  }
+}
 </style>

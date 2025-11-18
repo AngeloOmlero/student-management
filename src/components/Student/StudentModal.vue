@@ -272,7 +272,7 @@ h2 {
 /* Mobile */
 @media screen and (max-width: 480px) {
   .modal-content {
-    width: 95%;
+    width: 70%;
     padding: 1.2rem;
     border-radius: 12px;
   }

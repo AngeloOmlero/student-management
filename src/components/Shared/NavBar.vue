@@ -33,8 +33,10 @@
       <router-link to="/dashboard" @click="closeMenu">Dashboard</router-link>
       <router-link to="/students" @click="closeMenu">Students</router-link>
       <router-link to="/course" @click="closeMenu">Courses</router-link>
+
       <hr />
       <button class="dropdown-item logout" @click="logout">Logout</button>
+      <router-link to="/profile" class="dropdown-item profile">{{ fullName }}</router-link>
     </div>
   </header>
 </template>
@@ -102,7 +104,7 @@ export default defineComponent({
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 50px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   z-index: 1000;
 }
 
@@ -166,14 +168,6 @@ export default defineComponent({
   width: 100%;
 }
 
-/* Actions */
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  position: relative;
-}
-
 /* Profile Container */
 .profile-container {
   position: relative;
@@ -200,6 +194,7 @@ export default defineComponent({
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
   transition: transform 0.3s;
 }
+
 .avatar:hover {
   transform: scale(1.05);
 }
@@ -244,7 +239,7 @@ export default defineComponent({
   color: #c0392b;
 }
 
-/* Mobile Menu */
+/* Mobile Toggle */
 .menu-toggle {
   display: none;
   background: none;
@@ -279,35 +274,62 @@ export default defineComponent({
 .menu-toggle span.open {
   background: transparent;
 }
+
 .menu-toggle span.open::before {
   transform: rotate(45deg) translate(5px, 5px);
 }
+
 .menu-toggle span.open::after {
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Mobile Nav */
 .mobile-nav {
   position: absolute;
-  top: 70px;
-  right: 30px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  top: 75px;
+  right: 0;
+  width: 220px;
+  background: #ffffff;
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-  animation: fadeInDown 0.3s ease;
+  padding: 18px 20px;
+  gap: 18px;
+
+  animation: mobileSlideIn 0.25s ease forwards;
 }
 
 .mobile-nav a {
+  font-weight: 600;
   color: #007bff;
   text-decoration: none;
-  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  padding: 8px 0;
 }
 
+.mobile-nav a:hover {
+  color: #007bff;
+  transform: translateX(5px);
+}
+
+.mobile-nav .dropdown-item.logout {
+  text-align: left;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #c0392b;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav .dropdown-item.logout:hover {
+  background: rgba(192, 57, 43, 0.1);
+  transform: translateX(5px);
+}
+
+/* Animations */
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -319,17 +341,30 @@ export default defineComponent({
   }
 }
 
+@keyframes mobileSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Responsive */
 @media (max-width: 850px) {
   .nav-links {
     display: none;
   }
-  .nav-actions {
+
+  .profile-container {
     display: none;
   }
 
   .menu-toggle {
     display: block;
+    margin-left: 15px;
   }
 }
 </style>

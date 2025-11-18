@@ -17,20 +17,19 @@
         />
       </section>
 
-      <!-- Chart -->
       <section class="chart-section">
         <StudentsPerCourseChart :students="studentStore.students" />
       </section>
 
-      <!-- Recent Activity -->
-      <section class="activity-section">
-        <RecentActivity :students="studentStore.students" />
-      </section>
+      <div class="course-activity">
+        <section class="activity-section">
+          <RecentActivity :students="studentStore.students" />
+        </section>
 
-      <!-- Course Summary -->
-      <section class="course-section">
-        <CourseSummary ref="courseSummaryRef" :students="studentStore.students" />
-      </section>
+        <section class="course-section">
+          <CourseSummary ref="courseSummaryRef" :students="studentStore.students" />
+        </section>
+      </div>
     </main>
   </div>
 </template>
@@ -96,7 +95,12 @@ export default defineComponent({
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
-
+.course-activity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
 .chart-section,
 .activity-section,
 .course-section {

@@ -1,18 +1,10 @@
 <template>
   <div class="login-container">
- 
     <!-- Show the correct form -->
     <div class="auth-form">
-      <LoginForm 
-        v-if="activeTab === 'login'" 
-        @switch-form="activeTab = $event"
-      />
-      <RegisterForm 
-        v-if="activeTab === 'register'" 
-        @switch-form="activeTab = $event"
-      />
+      <LoginForm v-if="activeTab === 'login'" @switch-form="activeTab = $event" />
+      <RegisterForm v-if="activeTab === 'register'" @switch-form="activeTab = $event" />
     </div>
-
   </div>
 </template>
 
@@ -26,18 +18,20 @@ export default defineComponent({
   setup() {
     const activeTab = ref<'login' | 'register'>('login')
     return { activeTab }
-  }
+  },
 })
 </script>
 
-<style >
+<style>
 .auth-form {
-  font-family: "Fira Sans", sans-serif;
-  background: #f0f2f7;
+  font-family: 'Fira Sans', sans-serif;
+  background: #ffffff;
   color: #333;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0px;
+  margin: 0%;
 }
 </style>

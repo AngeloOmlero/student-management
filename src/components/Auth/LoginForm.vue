@@ -167,4 +167,11 @@ export default {
   transition: all 0.3s ease;
   overflow: hidden;
 }
+@media screen and (max-width: 480px) {
+  .login-container {
+    width: 75%;
+    padding: 30px;
+    border-radius: 12px;
+  }
+}
 </style>

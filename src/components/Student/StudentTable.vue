@@ -246,24 +246,25 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+button.confirm,
+button.cancel {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
 }
 
 button.confirm {
   background: #dc3545;
   color: white;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
 }
 
 button.cancel {
   background: #6c757d;
   color: white;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
 }
 
 @keyframes fadeIn {
@@ -276,9 +277,11 @@ button.cancel {
     transform: translateY(0);
   }
 }
-/* Keep styling simple and presentational */
+
+/* Table Container */
 .student-table-root {
   width: 100%;
+  overflow-x: auto;
 }
 
 .filter-container {
@@ -300,12 +303,13 @@ button.cancel {
   background: white;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  overflow-x: auto; /* Enable horizontal scroll */
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* Ensure table has a minimum width for small screens */
 }
 
 thead {
@@ -317,7 +321,8 @@ thead {
 
 th,
 td {
-  padding: 14px 16px;
+  padding: 12px 10px;
+  font-size: 0.9rem;
 }
 
 tbody tr:nth-child(even) {
@@ -331,24 +336,27 @@ tbody tr:hover {
 td.actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+button.edit,
+button.delete {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 2px solid;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 
 button.edit {
   color: #007bff;
-  border: 2px solid #007bff;
-  background: white;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-color: #007bff;
 }
 
 button.delete {
   color: #dc3545;
-  border: 2px solid #dc3545;
-  background: white;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-color: #dc3545;
 }
 
 .no-data {
@@ -360,16 +368,18 @@ button.delete {
 .pagination {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding: 12px;
+  flex-wrap: wrap;
 }
 
 .pagination button {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
   background: white;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .pagination button.active {
@@ -381,5 +391,54 @@ button.delete {
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-container input {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 10px;
+  }
+
+  table {
+    min-width: unset;
+    width: 100%;
+  }
+
+  th,
+  td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
+
+  td.actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pagination button {
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  th,
+  td {
+    font-size: 0.75rem;
+    padding: 6px 4px;
+  }
+
+  button.edit,
+  button.delete {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  .pagination button {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+  }
 }
 </style>

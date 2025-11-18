@@ -224,7 +224,7 @@ h2 {
 /* Toast notification */
 .toast {
   position: fixed;
-  bottom: 60%;
+  bottom: 20px;
   left: 85%;
   transform: translateX(-50%);
   background: #28a745;

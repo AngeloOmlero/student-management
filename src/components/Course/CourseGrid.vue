@@ -1,10 +1,6 @@
 <template>
   <div class="course-grid">
-    <CourseCard
-      v-for="course in courses"
-      :key="course.id"
-      :course="course"
-    />
+    <CourseCard v-for="course in courses" :key="course.id" :course="course" :index="course.id" />
   </div>
 </template>
 
@@ -29,9 +25,9 @@ export default defineComponent({
   props: {
     courses: {
       type: Array as PropType<Course[]>,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 })
 </script>
 

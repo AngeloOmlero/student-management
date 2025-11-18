@@ -67,9 +67,10 @@ export default defineComponent({
 
 h1 {
   margin-bottom: 2rem;
-  color: #2c3e50;
+  color: #007bff;
   font-size: 2rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .loader {
@@ -81,7 +82,7 @@ h1 {
 
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }

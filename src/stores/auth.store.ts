@@ -1,4 +1,3 @@
-
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { User, AuthResponse, LoginPayload, RegisterPayload } from '@/types/auth'
@@ -16,31 +15,29 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', response.token)
     await fetchCurrentUser()
     return response
-  };
+  }
 
   const register = async (payload: RegisterPayload) => {
-      const response = await authService.register(payload);
-      return response;
-    };
-
+    const response = await authService.register(payload)
+    return response
+  }
 
   const logout = () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
-  };
-
- const fetchCurrentUser = async () => {
-  if (!token.value) {
-    console.warn('No token found, cannot fetch user')
-    return null
+    window.location.reload()
   }
+
+  const fetchCurrentUser = async () => {
+    if (!token.value) {
+      console.warn('No token found, cannot fetch user')
+      return null
+    }
     const currentUser = await authService.getCurrentUser(token.value)
     user.value = currentUser
     return currentUser
-
-}
-
+  }
 
   return {
     token,
@@ -49,6 +46,6 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
-    fetchCurrentUser
+    fetchCurrentUser,
   }
 })

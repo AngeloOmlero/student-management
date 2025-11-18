@@ -25,10 +25,9 @@
         @page-changed="fetchStudents"
       />
     </div>
-
-    <!-- Student Modal -->
-    <StudentModal :visible="showModal" :student="selectedStudent" @close="closeModal" />
   </main>
+
+  <StudentModal :visible="showModal" :student="selectedStudent" @close="closeModal" />
 </template>
 
 <script lang="ts">
@@ -48,9 +47,9 @@ export default defineComponent({
     const selectedStudent = ref<any>(null)
     const currentPage = ref(0)
     const pageSize = 10
-    const localSearch = ref('') // <-- reactive search input
+    const localSearch = ref('')
 
-    const courses = ref<string[]>([]) // for dynamic course filtering
+    const courses = ref<string[]>([])
 
     const filters = ref<{ name?: string; email?: string; age?: number; course?: string }>({})
 

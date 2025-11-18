@@ -3,11 +3,12 @@ import AuthView from '../views/AuthView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import StudentsView from '@/views/StudentsView.vue'
 import CoursesView from '@/views/CoursesView.vue'
+import Profile from '@/views/Profile.vue'
 
 const routes = [
   {
     path: '/',
-    redirect: '/auth'
+    redirect: '/auth',
   },
   {
     path: '/auth',
@@ -17,20 +18,26 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: DashboardView
+    component: DashboardView,
   },
-  
+
   {
     path: '/students',
     name: 'student',
-    component: StudentsView
+    component: StudentsView,
   },
-  
+
   {
     path: '/course',
     name: 'course',
-    component: CoursesView
-  }
+    component: CoursesView,
+  },
+
+  {
+    path: '/profile',
+    name: 'profile',
+    component: Profile,
+  },
 ]
 
 const router = createRouter({
@@ -38,16 +45,21 @@ const router = createRouter({
   routes,
 })
 
-
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
 
   if (to.name === 'auth' && token) {
-    next({ name: 'dashboard'})
+    next({ name: 'dashboard' })
   } else if (to.name === 'dashboard' && !token) {
     next({ name: 'auth' })
+  } else if (to.name === 'profile' && !token) {
+    next({ name: 'auth' })
+  } else if (to.name === 'course' && !token) {
+    next({ name: 'auth' })
+  } else if (to.name === 'student' && !token) {
+    next({ name: 'auth' })
   } else {
-    next() 
+    next()
   }
 })
 

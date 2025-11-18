@@ -34,7 +34,6 @@
       <router-link to="/students" @click="closeMenu">Students</router-link>
       <router-link to="/course" @click="closeMenu">Courses</router-link>
       <hr />
-      <DarkModeToggle />
       <button class="dropdown-item logout" @click="logout">Logout</button>
     </div>
   </header>

@@ -12,35 +12,40 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch, onMounted } from 'vue'
+import { defineComponent, computed, onMounted } from 'vue'
 import { useStudentStore } from '../../stores/student.store'
 
 export default defineComponent({
   name: 'RecentActivity',
+
   setup() {
     const studentStore = useStudentStore()
 
     const recentActivities = computed(() => {
       if (!studentStore.students.length) return []
 
-      const sorted = [...studentStore.students].sort((a, b) => {
-        const dateA = new Date(a.updatedAt || a.createdAt).getTime()
-        const dateB = new Date(b.updatedAt || b.createdAt).getTime()
-        return dateB - dateA
+      const logs: { message: string; date: number }[] = []
+
+      studentStore.students.forEach((student) => {
+        const created = new Date(student.createdAt).getTime()
+        const updated = student.updatedAt ? new Date(student.updatedAt).getTime() : null
+
+        logs.push({
+          message: `${student.name} was added to ${student.courseName || 'N/A'}`,
+          date: created,
+        })
+
+        if (updated && updated !== created) {
+          logs.push({
+            message: `${student.name}'s profile was updated`,
+            date: updated,
+          })
+        }
       })
 
-      const latest = sorted.slice(0, 5)
+      const sorted = logs.sort((a, b) => b.date - a.date)
 
-      const activities: string[] = []
-
-      latest.forEach((student) => {
-        const isUpdated = student.updatedAt && student.updatedAt !== student.createdAt
-
-        if (isUpdated) activities.push(`${student.name}'s profile was updated`)
-        else activities.push(`${student.name} was added to ${student.courseName || 'N/A'}`)
-      })
-
-      return activities
+      return sorted.slice(0, 5).map((item) => item.message)
     })
 
     onMounted(() => {

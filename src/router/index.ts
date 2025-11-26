@@ -4,6 +4,7 @@ import DashboardView from '../views/DashboardView.vue'
 import StudentsView from '@/views/StudentsView.vue'
 import CoursesView from '@/views/CoursesView.vue'
 import Profile from '@/views/Profile.vue'
+import ChatView from '@/views/ChatView.vue'
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: Profile,
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: ChatView,
   },
 ]
 

@@ -10,6 +10,7 @@
       <router-link to="/dashboard" class="nav-item" exact>Dashboard</router-link>
       <router-link to="/students" class="nav-item">Students</router-link>
       <router-link to="/course" class="nav-item">Courses</router-link>
+      <router-link to="/chat" class="nav-item">Chat</router-link>
     </nav>
 
     <div class="profile-container" @click="toggleDropdown">
@@ -30,9 +31,10 @@
     </button>
 
     <div class="mobile-nav" v-if="isMenuOpen">
-      <router-link to="/dashboard" @click="closeMenu">Dashboard</router-link>
-      <router-link to="/students" @click="closeMenu">Students</router-link>
-      <router-link to="/course" @click="closeMenu">Courses</router-link>
+      <router-link to="/dashboard" @click="closeMenu" class="nav-item">Dashboard</router-link>
+      <router-link to="/students" @click="closeMenu" class="nav-item">Students</router-link>
+      <router-link to="/course" @click="closeMenu" class="nav-item">Courses</router-link>
+      <router-link to="/chat" @click="closeMenu" class="nav-item">Chat</router-link>
 
       <hr />
       <button class="dropdown-item logout" @click="logout">Logout</button>

@@ -18,7 +18,7 @@ export const useChatStore = defineStore('chat', () => {
     users.value = await getAllUsers(authStore.token)
   }
 
-  const fetchConversation = async (otherUsername: string, page = 0, size = 20) => {
+  const fetchConversation = async (otherUsername: string, page = 0, size = 200000000) => {
     const authStore = useAuthStore()
     if (!authStore.token) return
 

@@ -3,6 +3,7 @@ export interface User {
   fullName: string
   username: string
   role: 'ADMIN' | 'USER'
+  isOnline: boolean // New field for online status
 }
 
 export interface LoginPayload {

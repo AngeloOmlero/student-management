@@ -11,11 +11,17 @@ export const useChatStore = defineStore('chat', () => {
   const conversations = reactive<Record<string, PrivateMessage[]>>({})
   const activeChat = ref<string | null>(localStorage.getItem('activeChat') || null)
   const unreadMessages = reactive<Record<string, number>>({})
+  const typingStatus = reactive<Record<string, boolean>>({})
 
   const fetchUsers = async () => {
     const authStore = useAuthStore()
     if (!authStore.token) return
-    users.value = await getAllUsers(authStore.token)
+
+    const fetchedUsers = await getAllUsers(authStore.token)
+    users.value = fetchedUsers.map(user => ({
+      ...user,
+      isOnline: user.isOnline // Preserve isOnline from API response
+    }))
   }
 
   const fetchConversation = async (otherUsername: string, page = 0, size = 200000000) => {
@@ -42,6 +48,10 @@ export const useChatStore = defineStore('chat', () => {
     if (message.sender !== authStore.user?.username && activeChat.value !== chatKey) {
       unreadMessages[chatKey] = (unreadMessages[chatKey] || 0) + 1
     }
+    // When a message is received, the sender is no longer typing
+    if (typingStatus[chatKey]) {
+      typingStatus[chatKey] = false
+    }
   }
 
   const markAsRead = (username: string) => {
@@ -54,16 +64,30 @@ export const useChatStore = defineStore('chat', () => {
     return msgs[msgs.length - 1]
   }
 
+  const setTypingStatus = (username: string, status: boolean) => {
+    typingStatus[username] = status
+  }
+
+  const setOnlineStatus = (username: string, isOnline: boolean) => {
+    const userIndex = users.value.findIndex(user => user.username === username)
+    if (userIndex !== -1) {
+      users.value[userIndex].isOnline = isOnline
+    }
+  }
+
   return {
     users,
     conversations,
     activeChat,
     unreadMessages,
+    typingStatus,
     fetchUsers,
     fetchConversation,
     setActiveChat,
     addMessage,
     markAsRead,
     latestMessage,
+    setTypingStatus,
+    setOnlineStatus,
   }
 })

@@ -6,8 +6,8 @@ const route = useRoute()
 
 <template>
   <div>
-    
-    
+
+
     <RouterView />
   </div>
 </template>
